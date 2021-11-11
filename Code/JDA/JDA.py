@@ -92,7 +92,7 @@ if __name__ == '__main__':
     for i in range(1):
         for j in range(2):
             if i != j:
-                src, tar = 'data/'+domains[i], 'data/'+domains[j]
+                src, tar = '../data/'+domains[i], '../data/'+domains[j]
                 # load mat information
                 src_domain, tar_domain = scipy.io.loadmat(src), scipy.io.loadmat(tar)
                 Xs, Ys, Xt, Yt = src_domain['feas'], src_domain['label'], tar_domain['feas'], tar_domain['label']
