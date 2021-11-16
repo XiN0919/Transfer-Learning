@@ -68,7 +68,9 @@ class JDA:
             K = kernel(self.kernel_type, X, None, gamma=self.gamma)
             n_eye = m if self.kernel_type == 'primal' else n
             a, b = np.linalg.multi_dot([K, M, K.T]) + self.lamb * np.eye(n_eye), np.linalg.multi_dot([K, H, K.T])
-            w, V = scipy.linalg.eig(a, b)
+            c = np.linalg.inv(a).dot(b)
+            w, V = np.linalg.eig(c)
+            V = V.real.astype(np.float32)
             ind = np.argsort(w)
             A = V[:, ind[:self.dim]]
             Z = np.dot(A.T, K)
@@ -87,15 +89,17 @@ class JDA:
 
 if __name__ == '__main__':
     # four source domains or target domains
-    domains = ['caltech.mat', 'amazon.mat', 'webcam.mat', 'dslr.mat']
+    domains = ['amazon_fc6.mat', 'webcam_fc6.mat', 'webcam.mat', 'dslr.mat']
     # create source domains and target domains using for
     for i in range(1):
         for j in range(2):
             if i != j:
-                src, tar = '../data/'+domains[i], '../data/'+domains[j]
+                src, tar = '../Office-31-DeCAF6-DeCAF7/'+domains[i], '../Office-31-DeCAF6-DeCAF7/'+domains[j]
                 # load mat information
                 src_domain, tar_domain = scipy.io.loadmat(src), scipy.io.loadmat(tar)
-                Xs, Ys, Xt, Yt = src_domain['feas'], src_domain['label'], tar_domain['feas'], tar_domain['label']
+                print(src_domain)
+
+                Xs, Ys, Xt, Yt = src_domain['fts'], src_domain['labels'], tar_domain['fts'], tar_domain['labels']
                 jda = JDA(kernel_type='primal', dim=30, lamb=1, gamma=1)
                 acc, y_pred, list_acc = jda.fit_predict(Xs, Ys, Xt, Yt)
                 print(acc)
